@@ -1,0 +1,92 @@
+#*************************************************************************
+# Default configuration block bellow
+#*************************************************************************
+
+substitutions:
+  name: growatt-zijkant
+  
+esphome:
+  name: "${name}"
+
+esp8266:
+  board: esp07s
+
+logger:
+  baud_rate: 0
+
+api:
+  encryption:
+    key: !secret api_esphome_key
+  port: !secret api_esphome_port
+
+ota:
+  password: !secret ota_esphome_password
+
+wifi:
+  ssid: !secret lan_wifi_ssid
+  password: !secret lan_wifi_password
+  fast_connect: true
+
+  ap:
+    ssid: !secret fb_wifi_ssid
+    password: !secret fb_wifi_password
+
+captive_portal:
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+web_server:
+  port: !secret web_server_port
+
+switch:
+  - platform: restart
+    name: ${name} Restart
+    
+#*************************************************************************
+# Default configuration block ends here
+#*************************************************************************
+
+output:
+  # Blue Led
+  - id: light_bl
+    platform: gpio
+    pin: 16
+  # Green Led
+  - id: light_gr
+    platform: gpio
+    pin: 0
+  # Red Led
+  - id: light_rd
+    platform: gpio
+    pin: 2
+
+uart:
+  id: mod_bus
+  tx_pin: 1
+  rx_pin: 3
+  baud_rate: 115200
+  
+modbus:
+  id: modbus1
+  uart_id: mod_bus
+  
+modbus_controller:
+  - id: growatt
+    ## the Modbus device addr
+    address: 0x1
+    modbus_id: modbus1
+    setup_priority: -10  
+   
+sensor:
+
+  - platform: growatt_solar
+    update_interval: 1s
+    protocol_version: RTU2
+
+    inverter_module_temp:
+      name: "${name} Temperature"
+
+    total_energy_production:
+      name: "${name} EnergyTotal"
